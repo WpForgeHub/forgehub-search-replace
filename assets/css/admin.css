@@ -1,0 +1,39 @@
+.wpfh-bsr-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 8px 20px 12px;
+	margin: 16px 0;
+	max-width: 1100px;
+}
+.wpfh-bsr-progress .wpfh-bsr-bar {
+	height: 12px;
+	background: #dcdcde;
+	border-radius: 6px;
+	overflow: hidden;
+}
+.wpfh-bsr-progress .wpfh-bsr-bar span {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: #2271b1;
+	transition: width 0.2s;
+}
+.wpfh-bsr-table-row {
+	padding: 4px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+.wpfh-bsr-col-label {
+	display: inline-block;
+	margin: 4px 16px 4px 24px;
+}
+#wpfh-bsr-table-list {
+	max-height: 320px;
+	overflow: auto;
+}
+#wpfh-bsr-samples code {
+	white-space: pre-wrap;
+	word-break: break-all;
+	color: #1d2327;
+	background: #f6f7f7;
+}
