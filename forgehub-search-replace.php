@@ -32,10 +32,11 @@ if ( ! function_exists( 'wpfh_bsr_fs' ) ) {
 
 		if ( ! isset( $wpfh_bsr_fs ) ) {
 			$fs_path = WPFH_BSR_PATH . 'freemius/start.php';
-			if ( file_exists( $fs_path ) ) {
+			$fs_product_id = '0'; // TODO: set the real Freemius Product ID + public key; the SDK must not init with placeholders (fatal).
+			if ( '0' !== $fs_product_id && file_exists( $fs_path ) ) {
 				require_once $fs_path;
 				$wpfh_bsr_fs = fs_dynamic_init( array(
-					'id'             => '0', // TODO: replace with the Freemius Product ID once the product is created.
+					'id'             => $fs_product_id,
 					'slug'           => 'forgehub-search-replace',
 					'type'           => 'plugin',
 					'public_key'     => 'pk_PLACEHOLDER',
