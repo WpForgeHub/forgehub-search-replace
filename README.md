@@ -1,5 +1,7 @@
 # ForgeHub Search & Replace
 
+![ForgeHub Search & Replace](assets/banner-1544x500.png)
+
 [![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](https://wpforgehub.com/plugins/forgehub-search-replace/)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPLv2%20or%20later-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759b.svg)](https://wordpress.org/)
@@ -7,6 +9,7 @@
 [![Freemius](https://img.shields.io/badge/Freemius-SDK%20Ready-orange.svg)](https://freemius.com/)
 [![Zero Bloat](https://img.shields.io/badge/Zero-Server%20Bloat-success.svg)](https://wpforgehub.com/)
 [![WCAG 2.1](https://img.shields.io/badge/WCAG-2.1%20AA-brightgreen.svg)](https://wpforgehub.com/)
+[![Database](https://img.shields.io/badge/Database-Serialize%20Safe-teal.svg)](https://wpforgehub.com/)
 
 Serialize-safe database search and replace with a mandatory dry-run preview and batched AJAX processing.
 
