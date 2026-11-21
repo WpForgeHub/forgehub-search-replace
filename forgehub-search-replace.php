@@ -3,7 +3,7 @@
  * Plugin Name:       ForgeHub Search & Replace
  * Plugin URI:        https://wpforgehub.com/plugins/forgehub-search-replace/
  * Description:       Serialize-safe database search and replace with a mandatory dry-run preview and batched AJAX processing. No bloat, no external services.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            WPForgeHub
  * Author URI:        https://wpforgehub.com
  * License:           GPLv2 or later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPFH_BSR_VERSION', '1.0.1' );
+define( 'WPFH_BSR_VERSION', '1.0.2' );
 define( 'WPFH_BSR_FILE', __FILE__ );
 define( 'WPFH_BSR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPFH_BSR_URL', plugin_dir_url( __FILE__ ) );
@@ -32,14 +32,14 @@ if ( ! function_exists( 'wpfh_bsr_fs' ) ) {
 
 		if ( ! isset( $wpfh_bsr_fs ) ) {
 			$fs_path = WPFH_BSR_PATH . 'freemius/start.php';
-			$fs_product_id = '0'; // TODO: set the real Freemius Product ID + public key; the SDK must not init with placeholders (fatal).
+			$fs_product_id = '45922';
 			if ( '0' !== $fs_product_id && file_exists( $fs_path ) ) {
 				require_once $fs_path;
 				$wpfh_bsr_fs = fs_dynamic_init( array(
 					'id'             => $fs_product_id,
 					'slug'           => 'forgehub-search-replace',
 					'type'           => 'plugin',
-					'public_key'     => 'pk_PLACEHOLDER',
+					'public_key'     => 'pk_1bdcd1e280df1fbb94bf43edc27f7',
 					'is_premium'     => false,
 					'has_addons'     => false,
 					'has_paid_plans' => true,
