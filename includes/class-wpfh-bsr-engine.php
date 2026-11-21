@@ -36,14 +36,33 @@ final class WPFH_BSR_Engine {
 	public static function list_tables() {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$all = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix ) . '%' ) );
-		$out = array();
+		$all            = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix ) . '%' ) );
+		$out            = array();
+		$options_table  = '';
+		$subsite_regex  = ( is_multisite() && is_main_site() )
+			? '/^' . preg_quote( $wpdb->base_prefix, '/' ) . '\d+_/'
+			: '';
+
 		foreach ( (array) $all as $table ) {
 			if ( $wpdb->prefix . 'wpfh_bsr_backup' === $table ) {
 				continue;
 			}
+			// On a Multisite main site, exclude subsite tables (e.g. wp_2_posts) whose prefix shares wp_.
+			if ( '' !== $subsite_regex && preg_match( $subsite_regex, $table ) ) {
+				continue;
+			}
+			if ( $wpdb->options === $table ) {
+				$options_table = $table;
+				continue;
+			}
 			$out[] = $table;
 		}
+
+		// Always process wp_options last so siteurl/home changes do not break mid-run AJAX requests.
+		if ( '' !== $options_table ) {
+			$out[] = $options_table;
+		}
+
 		return $out;
 	}
 
@@ -64,6 +83,8 @@ final class WPFH_BSR_Engine {
 			$name = $col['Field'];
 			if ( 'PRI' === $col['Key'] ) {
 				$pks[] = $name;
+				// Never rewrite primary key columns (even VARCHAR/TEXT PKs) to preserve row identity and Undo.
+				continue;
 			}
 			$type = strtolower( preg_replace( '/\(.*$/', '', $col['Type'] ) );
 			if ( ! in_array( $type, self::$text_types, true ) ) {
@@ -102,7 +123,8 @@ final class WPFH_BSR_Engine {
 				$un = @unserialize( $data, array( 'allowed_classes' => array( 'stdClass' ) ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 				if ( false !== $un || 'b:0;' === $data ) {
 					$inner = self::replace_value( $un, $search, $replace, $ci, $count, $skipped );
-					return maybe_serialize( $inner );
+					// Use serialize() directly so serialized scalars (e.g. s:10:"...";) stay serialized.
+					return serialize( $inner ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				}
 				// Corrupted serialized string: replacing inside it would break byte lengths. Leave it alone.
 				if ( false !== ( $ci ? stripos( $data, $search ) : strpos( $data, $search ) ) ) {
@@ -168,7 +190,9 @@ final class WPFH_BSR_Engine {
 		global $wpdb;
 
 		$tables = self::list_tables();
-		if ( ! empty( $p['tables'] ) ) {
+		if ( ! empty( $p['tables_explicit'] ) ) {
+			$tables = ! empty( $p['tables'] ) ? array_values( array_intersect( $tables, $p['tables'] ) ) : array();
+		} elseif ( ! empty( $p['tables'] ) ) {
 			$tables = array_values( array_intersect( $tables, $p['tables'] ) );
 		}
 
@@ -199,7 +223,11 @@ final class WPFH_BSR_Engine {
 
 		$columns = $info['columns'];
 		if ( ! empty( $p['columns'][ $table ] ) && is_array( $p['columns'][ $table ] ) ) {
-			$columns = array_values( array_intersect( $columns, $p['columns'][ $table ] ) );
+			$selected_cols = $p['columns'][ $table ];
+			if ( ! empty( $p['guid'] ) && in_array( 'guid', $columns, true ) && ! in_array( 'guid', $selected_cols, true ) ) {
+				$selected_cols[] = 'guid';
+			}
+			$columns = array_values( array_intersect( $columns, $selected_cols ) );
 		}
 
 		if ( '' === $info['pk'] || empty( $columns ) ) {
@@ -222,6 +250,10 @@ final class WPFH_BSR_Engine {
 
 		foreach ( (array) $rows as $row ) {
 			$result['scanned']++;
+			// Never rewrite this plugin's own dry-run proof transient in wp_options.
+			if ( $wpdb->options === $table && isset( $row['option_name'] ) && 0 === strpos( (string) $row['option_name'], '_transient_wpfh_bsr_dry_' ) ) {
+				continue;
+			}
 			$changes     = array();
 			$row_skipped = false;
 			foreach ( $columns as $col ) {
@@ -296,15 +328,24 @@ final class WPFH_BSR_Engine {
 	 * @return string
 	 */
 	private static function snippet( $text, $needle, $ci ) {
-		$text = (string) $text;
+		$text       = (string) $text;
+		$has_mb     = function_exists( 'mb_substr' ) && function_exists( 'mb_strlen' ) && function_exists( 'mb_strpos' ) && function_exists( 'mb_stripos' );
 		if ( '' === $needle ) {
-			return mb_substr( $text, 0, 120 );
+			return $has_mb ? mb_substr( $text, 0, 120 ) : substr( $text, 0, 120 );
 		}
-		$pos = $ci ? mb_stripos( $text, $needle ) : mb_strpos( $text, $needle );
+		if ( $has_mb ) {
+			$pos = $ci ? mb_stripos( $text, $needle ) : mb_strpos( $text, $needle );
+			if ( false === $pos ) {
+				return mb_substr( $text, 0, 120 );
+			}
+			$start = max( 0, $pos - 40 );
+			return ( $start > 0 ? '…' : '' ) . mb_substr( $text, $start, mb_strlen( $needle ) + 80 ) . '…';
+		}
+		$pos = $ci ? stripos( $text, $needle ) : strpos( $text, $needle );
 		if ( false === $pos ) {
-			return mb_substr( $text, 0, 120 );
+			return substr( $text, 0, 120 );
 		}
 		$start = max( 0, $pos - 40 );
-		return ( $start > 0 ? '…' : '' ) . mb_substr( $text, $start, mb_strlen( $needle ) + 80 ) . '…';
+		return ( $start > 0 ? '…' : '' ) . substr( $text, $start, strlen( $needle ) + 80 ) . '…';
 	}
 }

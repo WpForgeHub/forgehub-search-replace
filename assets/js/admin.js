@@ -64,7 +64,7 @@
 		var tables = [];
 		var columns = {};
 		if ( ! cfg.isPro || ! els.list ) {
-			return { tables: tables, columns: columns };
+			return { tables: tables, columns: columns, explicit: false, picked: -1 };
 		}
 		var all = els.list.querySelectorAll( 'input.wpfh-bsr-table' );
 		var picked = 0;
@@ -81,11 +81,12 @@
 			} );
 			columns[ name ] = cols.length ? cols : [ '__none__' ];
 		} );
-		if ( picked === all.length ) {
+		var explicit = all.length > 0 && picked !== all.length;
+		if ( all.length > 0 && picked === all.length ) {
 			// Everything selected: let the server use its defaults, but keep explicit column limits.
 			tables = [];
 		}
-		return { tables: tables, columns: columns };
+		return { tables: tables, columns: columns, explicit: explicit, picked: picked };
 	}
 
 	function params() {
@@ -96,6 +97,7 @@
 			ci: els.ci.checked ? 1 : 0,
 			guid: els.guid.checked ? 1 : 0,
 			tables: sel.tables,
+			tables_explicit: sel.explicit ? 1 : 0,
 			columns: sel.columns
 		};
 	}
@@ -128,6 +130,11 @@
 		}
 		if ( ! els.search.value ) {
 			window.alert( cfg.i18n.needSearch );
+			return;
+		}
+		var selCheck = selection();
+		if ( selCheck.explicit && selCheck.picked === 0 ) {
+			window.alert( 'Please select at least one table first.' );
 			return;
 		}
 		if ( ! dry && ! window.confirm( cfg.i18n.confirmLive ) ) {

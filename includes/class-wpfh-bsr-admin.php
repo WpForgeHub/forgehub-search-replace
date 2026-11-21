@@ -131,16 +131,17 @@ final class WPFH_BSR_Admin {
 		$run_id = isset( $_POST['run_id'] ) ? preg_replace( '/[^a-f0-9\-]/', '', sanitize_text_field( wp_unslash( $_POST['run_id'] ) ) ) : '';
 
 		$p = array(
-			'search'      => $search,
-			'replace'     => $replace,
-			'ci'          => ! empty( $_POST['ci'] ),
-			'guid'        => ! empty( $_POST['guid'] ),
-			'dry'         => ! empty( $_POST['dry'] ),
-			'tables'      => $tables,
-			'columns'     => $columns,
-			'table_index' => isset( $_POST['table_index'] ) ? absint( $_POST['table_index'] ) : 0,
-			'offset'      => isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0,
-			'run_id'      => $run_id,
+			'search'          => $search,
+			'replace'         => $replace,
+			'ci'              => ! empty( $_POST['ci'] ),
+			'guid'            => ! empty( $_POST['guid'] ),
+			'dry'             => ! empty( $_POST['dry'] ),
+			'tables'          => $tables,
+			'tables_explicit' => wpfh_bsr_is_pro() && ! empty( $_POST['tables_explicit'] ),
+			'columns'         => $columns,
+			'table_index'     => isset( $_POST['table_index'] ) ? absint( $_POST['table_index'] ) : 0,
+			'offset'          => isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0,
+			'run_id'          => $run_id,
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		return $p;
@@ -172,6 +173,10 @@ final class WPFH_BSR_Admin {
 
 		if ( '' === $p['search'] ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Search string is empty.', 'forgehub-search-replace' ) ), 400 );
+		}
+
+		if ( ! empty( $p['tables_explicit'] ) && empty( $p['tables'] ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Select at least one table first.', 'forgehub-search-replace' ) ), 400 );
 		}
 
 		$fp = WPFH_BSR_Engine::fingerprint( $p );
