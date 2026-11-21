@@ -4,7 +4,7 @@ Tags: search replace, database, migration, serialized, domain change
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ Pro purchases are covered by a 14-day money-back guarantee through Freemius.
 1. The Search & Replace tool with dry-run preview.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix serialized scalar corruption, Select None table handling, Multisite subsite isolation, PK protection, wp_options ordering, and mbstring fallback.
 
 = 1.0.0 =
 * Initial release: serialize-safe search and replace, dry-run, batched AJAX, guid protection. Pro: table/column selection, automatic backup and undo.

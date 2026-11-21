@@ -3,7 +3,7 @@
  * Plugin Name:       ForgeHub Search & Replace
  * Plugin URI:        https://wpforgehub.com/plugins/forgehub-search-replace/
  * Description:       Serialize-safe database search and replace with a mandatory dry-run preview and batched AJAX processing. No bloat, no external services.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            WPForgeHub
  * Author URI:        https://wpforgehub.com
  * License:           GPLv2 or later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPFH_BSR_VERSION', '1.0.0' );
+define( 'WPFH_BSR_VERSION', '1.0.1' );
 define( 'WPFH_BSR_FILE', __FILE__ );
 define( 'WPFH_BSR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPFH_BSR_URL', plugin_dir_url( __FILE__ ) );
