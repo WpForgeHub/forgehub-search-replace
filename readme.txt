@@ -4,7 +4,7 @@ Tags: search replace, database, migration, serialized, domain change
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,10 @@ Pro purchases are covered by a 14-day money-back guarantee through Freemius.
 1. The Search & Replace tool with dry-run preview.
 
 == Changelog ==
+
+= 1.0.4 =
+* Add Value-Moment 5-star review and GitHub star nudge (hidden on first install, single-click permanent dismiss).
+* Add calm Priority Support & Pro action link on the Plugins screen using canonical `#pricing` URL.
 
 = 1.0.3 =
 * Standardize Upgrade to Pro links to canonical `#pricing` product URL.

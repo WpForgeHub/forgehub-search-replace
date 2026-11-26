@@ -3,7 +3,7 @@
  * Plugin Name:       ForgeHub Search & Replace
  * Plugin URI:        https://wpforgehub.com/plugins/forgehub-search-replace/
  * Description:       Serialize-safe database search and replace with a mandatory dry-run preview and batched AJAX processing. No bloat, no external services.
- * Version:           1.0.3
+ * Version:           1.0.4
  * Author:            WPForgeHub
  * Author URI:        https://wpforgehub.com
  * License:           GPLv2 or later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPFH_BSR_VERSION', '1.0.3' );
+define( 'WPFH_BSR_VERSION', '1.0.4' );
 define( 'WPFH_BSR_FILE', __FILE__ );
 define( 'WPFH_BSR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPFH_BSR_URL', plugin_dir_url( __FILE__ ) );
@@ -83,6 +83,7 @@ if ( ! function_exists( 'wpfh_bsr_fs' ) ) {
 function wpfh_bsr_uninstall_cleanup() {
 	global $wpdb;
 	delete_option( 'wpfh_bsr_db_version' );
+	delete_option( 'wpfh_bsr_review_nudge' );
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wpdb->prefix . 'wpfh_bsr_backup' ) );
 }
@@ -100,6 +101,7 @@ function wpfh_bsr_is_pro() {
  * Bootstrap.
  */
 function wpfh_bsr_boot() {
+	require_once WPFH_BSR_PATH . 'includes/class-wpfh-review-nudge.php';
 	require_once WPFH_BSR_PATH . 'includes/class-wpfh-bsr-engine.php';
 	require_once WPFH_BSR_PATH . 'includes/class-wpfh-bsr-admin.php';
 

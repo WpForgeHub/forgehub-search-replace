@@ -28,6 +28,33 @@ final class WPFH_BSR_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_ajax_wpfh_bsr_tables', array( $this, 'ajax_tables' ) );
 		add_action( 'wp_ajax_wpfh_bsr_batch', array( $this, 'ajax_batch' ) );
+
+		if ( is_admin() && class_exists( 'WPFH_Review_Nudge' ) ) {
+			$nudge = new WPFH_Review_Nudge(
+				array(
+					'plugin_slug'   => 'forgehub-search-replace',
+					'plugin_name'   => 'ForgeHub Search & Replace',
+					'option_prefix' => 'wpfh_bsr',
+					'wporg_slug'    => 'forgehub-search-replace',
+					'github_url'    => 'https://github.com/WpForgeHub/forgehub-search-replace',
+					'min_actions'   => 2,
+					'min_days'      => 7,
+					'trigger_mode'  => 'or',
+					'screens'       => array( 'tools_page_forgehub-search-replace', 'plugins' ),
+					'strings'       => array(
+						/* translators: %s: Plugin name. */
+						'heading'     => sprintf( __( 'Enjoying %s?', 'forgehub-search-replace' ), 'ForgeHub Search & Replace' ),
+						/* translators: %s: Plugin name. */
+						'message'     => sprintf( __( 'If %s has saved you time on database migrations, a quick 5-star review helps other site owners discover it and keeps development active.', 'forgehub-search-replace' ), 'ForgeHub Search & Replace' ),
+						'rate_cta'    => __( 'Rate 5 Stars on WordPress.org', 'forgehub-search-replace' ),
+						'github_cta'  => __( 'Star on GitHub', 'forgehub-search-replace' ),
+						'later_cta'   => __( 'Maybe later', 'forgehub-search-replace' ),
+						'dismiss_cta' => __( 'Already did / Dismiss', 'forgehub-search-replace' ),
+					),
+				)
+			);
+			$nudge->register();
+		}
 	}
 
 	/**
@@ -37,8 +64,13 @@ final class WPFH_BSR_Admin {
 	 * @return array
 	 */
 	public function add_action_links( $links ) {
-		$link = '<a href="' . esc_url( admin_url( 'tools.php?page=' . self::PAGE ) ) . '">' . esc_html__( 'Settings', 'forgehub-search-replace' ) . '</a>';
-		array_unshift( $links, $link );
+		$settings_link = '<a href="' . esc_url( admin_url( 'tools.php?page=' . self::PAGE ) ) . '">' . esc_html__( 'Settings', 'forgehub-search-replace' ) . '</a>';
+		if ( ! wpfh_bsr_is_pro() ) {
+			$pro_link = '<a href="' . esc_url( wpfh_bsr_fs()->get_upgrade_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Priority Support & Pro', 'forgehub-search-replace' ) . '</a>';
+			array_unshift( $links, $settings_link, $pro_link );
+		} else {
+			array_unshift( $links, $settings_link );
+		}
 		return $links;
 	}
 
@@ -200,6 +232,9 @@ final class WPFH_BSR_Admin {
 				delete_transient( WPFH_BSR_Engine::proof_key() );
 				// Object caches may hold stale rows after a rewrite.
 				wp_cache_flush();
+				if ( class_exists( 'WPFH_Review_Nudge' ) ) {
+					WPFH_Review_Nudge::track_success( 'wpfh_bsr' );
+				}
 			}
 		}
 
