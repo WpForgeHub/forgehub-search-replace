@@ -29,3 +29,19 @@ Serialize-safe database search and replace with a mandatory dry-run preview and 
 Upload the plugin and open **Tools → Search & Replace**.
 
 Links: [WPForgeHub](https://wpforgehub.com) · [GitHub](https://github.com/WpForgeHub)
+
+---
+
+## 📸 Admin Preview
+
+<p align="center">
+  <img src="assets/screenshot-1.png" alt="ForgeHub Search & Replace WordPress Admin Settings" width="100%" />
+</p>
+
+---
+
+## 🔗 Links & Resources
+
+- **Plugin Page:** [https://wpforgehub.com/product/search-replace/](https://wpforgehub.com/product/search-replace/)
+- **Documentation & Help:** [wpforgehub.com/docs](https://wpforgehub.com/docs/)
+- **More Free WordPress Plugins:** [wpforgehub.com](https://wpforgehub.com/#products)
